@@ -442,7 +442,9 @@ static STHTTPRequestCookiesStorage globalCookiesStoragePolicy = STHTTPRequestCoo
     
     NSData *bodyData = nil;
     
-    if([self.filesToUpload count] > 0 || [self.dataToUpload count] > 0) {
+    if (self.httpBody != nil) {
+        bodyData = [self.httpBody dataUsingEncoding:_POSTDataEncoding allowLossyConversion:YES];
+    } else if([self.filesToUpload count] > 0 || [self.dataToUpload count] > 0) {
         
         NSString *boundary = @"----------kStHtTpReQuEsTbOuNdArY";
         

@@ -363,6 +363,7 @@ authenticateInsteadOfAuthorize:authenticateInsteadOfAuthorize
                                            HTTPMethod:(NSString *)HTTPMethod
                                         baseURLString:(NSString *)baseURLString
                                            parameters:(NSDictionary *)params
+                                             httpBody:(NSString *)httpBody
                                   uploadProgressBlock:(void(^)(int64_t bytesWritten, int64_t totalBytesWritten, int64_t totalBytesExpectedToWrite))uploadProgressBlock
                                 downloadProgressBlock:(void(^)(NSObject<STTwitterRequestProtocol> *request, NSData *data))downloadProgressBlock
                                          successBlock:(void(^)(NSObject<STTwitterRequestProtocol> *request, NSDictionary *requestHeaders, NSDictionary *responseHeaders, id response))successBlock
@@ -372,6 +373,7 @@ authenticateInsteadOfAuthorize:authenticateInsteadOfAuthorize
                       HTTPMethod:HTTPMethod
                    baseURLString:baseURLString
                       parameters:params
+                        httpBody:httpBody
              uploadProgressBlock:uploadProgressBlock
            downloadProgressBlock:downloadProgressBlock
                     successBlock:successBlock
@@ -394,6 +396,7 @@ authenticateInsteadOfAuthorize:authenticateInsteadOfAuthorize
                       HTTPMethod:HTTPMethod
                    baseURLString:baseURLString
                       parameters:params
+                        httpBody:nil
              uploadProgressBlock:uploadProgressBlock
            downloadProgressBlock:downloadProgressBlock
                     successBlock:^(id request, NSDictionary *requestHeaders, NSDictionary *responseHeaders, id response) {
@@ -458,6 +461,7 @@ authenticateInsteadOfAuthorize:authenticateInsteadOfAuthorize
                       HTTPMethod:@"GET"
                    baseURLString:baseURLString
                       parameters:parameters
+                        httpBody:nil
              uploadProgressBlock:nil
            downloadProgressBlock:^(id request, NSData *data) {
                if(downloadProgressBlock) downloadProgressBlock(data);
@@ -480,6 +484,7 @@ authenticateInsteadOfAuthorize:authenticateInsteadOfAuthorize
                       HTTPMethod:@"POST"
                    baseURLString:baseURLString
                       parameters:parameters
+                        httpBody:nil
              uploadProgressBlock:uploadProgressBlock
            downloadProgressBlock:^(id request, NSData *data) {
                if(downloadProgressBlock) downloadProgressBlock(data);
@@ -501,6 +506,7 @@ authenticateInsteadOfAuthorize:authenticateInsteadOfAuthorize
                       HTTPMethod:@"POST"
                    baseURLString:baseURLString
                       parameters:parameters
+                        httpBody:nil
              uploadProgressBlock:uploadProgressBlock
            downloadProgressBlock:^(id request, NSData *data) {
                if(downloadProgressBlock) downloadProgressBlock(data);
@@ -520,6 +526,7 @@ authenticateInsteadOfAuthorize:authenticateInsteadOfAuthorize
                       HTTPMethod:@"GET"
                    baseURLString:baseURLString
                       parameters:parameters
+                        httpBody:nil
              uploadProgressBlock:nil
            downloadProgressBlock:^(id request, NSData *data) {
                if(downloadProgressBlock) downloadProgressBlock(data);
@@ -5006,6 +5013,7 @@ authenticateInsteadOfAuthorize:authenticateInsteadOfAuthorize
                     HTTPMethod:@"DELETE"
                  baseURLString:kBaseURLStringAPI_1_1
                     parameters:nil
+                      httpBody:nil
            uploadProgressBlock:nil
          downloadProgressBlock:nil
                   successBlock:^(id request, NSDictionary *requestHeaders, NSDictionary *responseHeaders, id response) {
@@ -5037,6 +5045,7 @@ authenticateInsteadOfAuthorize:authenticateInsteadOfAuthorize
                     HTTPMethod:@"PUT"
                  baseURLString:kBaseURLStringAPI_1_1
                     parameters:md
+                      httpBody:nil
            uploadProgressBlock:nil
          downloadProgressBlock:nil
                   successBlock:^(id request, NSDictionary *requestHeaders, NSDictionary *responseHeaders, id response) {
@@ -5102,6 +5111,7 @@ authenticateInsteadOfAuthorize:authenticateInsteadOfAuthorize
                     HTTPMethod:@"POST"
                  baseURLString:kBaseURLStringAPI_1_1
                     parameters:parameters
+                      httpBody:nil
            uploadProgressBlock:nil
          downloadProgressBlock:nil
                   successBlock:^(id request, NSDictionary *requestHeaders, NSDictionary *responseHeaders, id response) {
@@ -5203,6 +5213,7 @@ authenticateInsteadOfAuthorize:authenticateInsteadOfAuthorize
                       HTTPMethod:@"GET"
                    baseURLString:@"https://analytics.twitter.com"
                       parameters:nil
+                        httpBody:nil
              uploadProgressBlock:nil
            downloadProgressBlock:nil
                     successBlock:^(id request, NSDictionary *requestHeaders, NSDictionary *responseHeaders, id response) {

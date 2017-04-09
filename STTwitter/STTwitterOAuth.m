@@ -238,6 +238,7 @@
                  HTTPMethod:@"GET"
               baseURLString:@"https://api.twitter.com/1.1"
                  parameters:nil
+                   httpBody:nil
               oauthCallback:nil
         uploadProgressBlock:nil
       downloadProgressBlock:nil
@@ -289,6 +290,7 @@
              HTTPMethod:@"POST"
           baseURLString:@"https://api.twitter.com"
              parameters:@{}
+               httpBody:nil
           oauthCallback:theOAuthCallback
     uploadProgressBlock:nil
   downloadProgressBlock:nil
@@ -342,6 +344,7 @@
              HTTPMethod:@"POST"
           baseURLString:@"https://api.twitter.com"
              parameters:@{@"x_auth_mode" : @"reverse_auth"}
+               httpBody:nil
           oauthCallback:nil
     uploadProgressBlock:nil
   downloadProgressBlock:nil
@@ -521,6 +524,7 @@
                                            HTTPMethod:(NSString *)HTTPMethod
                                         baseURLString:(NSString *)baseURLString
                                            parameters:(NSDictionary *)params
+                                             httpBody:(NSString *)httpBody
                                   uploadProgressBlock:(void(^)(int64_t bytesWritten, int64_t totalBytesWritten, int64_t totalBytesExpectedToWrite))uploadProgressBlock
                                 downloadProgressBlock:(void(^)(NSObject<STTwitterRequestProtocol> *request, NSData *data))progressBlock
                                          successBlock:(void(^)(NSObject<STTwitterRequestProtocol> *request, NSDictionary *requestHeaders, NSDictionary *responseHeaders, id response))successBlock
@@ -530,6 +534,7 @@
                     HTTPMethod:HTTPMethod
                  baseURLString:baseURLString
                     parameters:params
+                      httpBody:httpBody
                  oauthCallback:nil
            uploadProgressBlock:uploadProgressBlock
          downloadProgressBlock:progressBlock
@@ -541,6 +546,7 @@
                       HTTPMethod:(NSString *)HTTPMethod
                    baseURLString:(NSString *)baseURLString
                       parameters:(NSDictionary *)params
+                        httpBody:(NSString *)httpBody
                    oauthCallback:(NSString *)oauthCallback
              uploadProgressBlock:(void(^)(int64_t bytesWritten, int64_t totalBytesWritten, int64_t totalBytesExpectedToWrite))uploadProgressBlock
            downloadProgressBlock:(void(^)(STHTTPRequest *r, NSData *data))downloadProgressBlock
@@ -565,6 +571,7 @@
                                    } stTwitterErrorBlock:^(NSDictionary *requestHeaders, NSDictionary *responseHeaders, NSError *error) {
                                        errorBlock(wr, requestHeaders, responseHeaders, error);
                                    }];
+    r.httpBody = httpBody;
     
     NSString *postKey = [params valueForKey:kSTPOSTDataKey];
     NSData *postData = [params valueForKey:postKey];
@@ -615,6 +622,7 @@
                     HTTPMethod:@"POST"
                  baseURLString:baseURLString
                     parameters:params
+                      httpBody:nil
                  oauthCallback:nil
            uploadProgressBlock:nil
          downloadProgressBlock:progressBlock
@@ -634,6 +642,7 @@
                     HTTPMethod:@"POST"
                  baseURLString:baseURLString
                     parameters:params
+                      httpBody:nil
                  oauthCallback:oauthCallback
            uploadProgressBlock:nil
          downloadProgressBlock:nil
@@ -652,6 +661,7 @@
                     HTTPMethod:@"POST"
                  baseURLString:baseURLString
                     parameters:params
+                      httpBody:nil
                  oauthCallback:nil
            uploadProgressBlock:nil
          downloadProgressBlock:nil
