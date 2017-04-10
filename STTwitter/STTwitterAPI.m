@@ -4445,13 +4445,14 @@ authenticateInsteadOfAuthorize:authenticateInsteadOfAuthorize
                  }];
 }
 
-- (NSObject<STTwitterRequestProtocol> *)postMediaUploadINITWithVideoURL:(NSURL *)videoMediaURL
+- (NSObject<STTwitterRequestProtocol> *)postMediaUploadINITWithMediaURL:(NSURL *)mediaURL
+                                                              mediaType:(NSString *)mediaType
                                                            successBlock:(void(^)(NSString *mediaID, NSInteger expiresAfterSecs))successBlock
                                                              errorBlock:(void(^)(NSError *error))errorBlock {
     
     // https://dev.twitter.com/rest/public/uploading-media
     
-    NSData *data = [NSData dataWithContentsOfURL:videoMediaURL];
+    NSData *data = [NSData dataWithContentsOfURL:mediaURL];
     
     if(data == nil) {
         NSError *error = [NSError errorWithDomain:NSStringFromClass([self class])
@@ -4463,7 +4464,7 @@ authenticateInsteadOfAuthorize:authenticateInsteadOfAuthorize
     
     NSMutableDictionary *md = [NSMutableDictionary dictionary];
     md[@"command"] = @"INIT";
-    md[@"media_type"] = @"video/mp4";
+    md[@"media_type"] = mediaType;
     md[@"total_bytes"] = [NSString stringWithFormat:@"%@", @([data length])];
     
     return [self postResource:@"media/upload.json"
@@ -4490,7 +4491,7 @@ authenticateInsteadOfAuthorize:authenticateInsteadOfAuthorize
                  }];
 }
 
-- (void)postMediaUploadAPPENDWithVideoURL:(NSURL *)videoMediaURL
+- (void)postMediaUploadAPPENDWithMediaURL:(NSURL *)mediaURL
                                   mediaID:(NSString *)mediaID
                       uploadProgressBlock:(void(^)(int64_t bytesWritten, int64_t totalBytesWritten, int64_t totalBytesExpectedToWrite))uploadProgressBlock
                              successBlock:(void(^)(id response))successBlock
@@ -4499,7 +4500,7 @@ authenticateInsteadOfAuthorize:authenticateInsteadOfAuthorize
     // https://dev.twitter.com/rest/public/uploading-media
     // https://dev.twitter.com/rest/reference/post/media/upload-chunked
     
-    NSData *data = [NSData dataWithContentsOfURL:videoMediaURL];
+    NSData *data = [NSData dataWithContentsOfURL:mediaURL];
     
     NSInteger dataLength = [data length];
     
@@ -4509,7 +4510,7 @@ authenticateInsteadOfAuthorize:authenticateInsteadOfAuthorize
         return;
     }
     
-    NSString *fileName = [videoMediaURL isFileURL] ? [[videoMediaURL path] lastPathComponent] : @"media.jpg";
+    NSString *fileName = [mediaURL isFileURL] ? [[mediaURL path] lastPathComponent] : @"media.jpg";
     
     NSUInteger fiveMegaBytes = 5 * (int) pow((double) 2,20);
     
@@ -4582,7 +4583,7 @@ authenticateInsteadOfAuthorize:authenticateInsteadOfAuthorize
 }
 
 - (NSObject<STTwitterRequestProtocol> *)postMediaUploadFINALIZEWithMediaID:(NSString *)mediaID
-                                                              successBlock:(void(^)(NSString *mediaID, NSInteger size, NSInteger expiresAfter, NSString *videoType))successBlock
+                                                              successBlock:(void(^)(NSString *mediaID, NSInteger size, NSInteger expiresAfter, NSString *mediaType))successBlock
                                                                 errorBlock:(void(^)(NSError *error))errorBlock {
     
     // https://dev.twitter.com/rest/public/uploading-media
@@ -4598,12 +4599,16 @@ authenticateInsteadOfAuthorize:authenticateInsteadOfAuthorize
         downloadProgressBlock:nil
                  successBlock:^(NSDictionary *rateLimits, id response) {
                      
-                     //NSLog(@"-- %@", response);
+                     NSLog(@"finalize response -- %@", response);
                      
                      NSString *mediaID = [response valueForKey:@"media_id_string"];
                      NSInteger expiresAfterSecs = [[response valueForKey:@"expires_after_secs"] integerValue];
                      NSInteger size = [[response valueForKey:@"size"] integerValue];
-                     NSString *videoType = [response valueForKeyPath:@"video.video_type"];
+                     NSString *mediaType = [response valueForKeyPath:@"video.video_type"];
+                     
+                     if (mediaType == nil) {
+                         mediaType = [response valueForKeyPath:@"image.image_type"];
+                     }
                      
                      /*
                       {
@@ -4617,7 +4622,7 @@ authenticateInsteadOfAuthorize:authenticateInsteadOfAuthorize
                       }
                       */
                      
-                     successBlock(mediaID, size, expiresAfterSecs, videoType);
+                     successBlock(mediaID, size, expiresAfterSecs, mediaType);
                  } errorBlock:^(NSError *error) {
                      errorBlock(error);
                  }];
@@ -4625,14 +4630,16 @@ authenticateInsteadOfAuthorize:authenticateInsteadOfAuthorize
 
 // convenience
 
-- (void)postMediaUploadThreeStepsWithVideoURL:(NSURL *)videoURL // local URL
+- (void)postMediaUploadThreeStepsWithMediaURL:(NSURL *)mediaURL // local URL
+                                    mediaType:(NSString *)mediaType
                           uploadProgressBlock:(void(^)(int64_t bytesWritten, int64_t totalBytesWritten, int64_t totalBytesExpectedToWrite))uploadProgressBlock
-                                 successBlock:(void(^)(NSString *mediaID, NSInteger size, NSInteger expiresAfter, NSString *videoType))successBlock
+                                 successBlock:(void(^)(NSString *mediaID, NSInteger size, NSInteger expiresAfter, NSString *mediaType))successBlock
                                    errorBlock:(void(^)(NSError *error))errorBlock {
     
     __weak typeof(self) weakSelf = self;
     
-    [self postMediaUploadINITWithVideoURL:videoURL
+    [self postMediaUploadINITWithMediaURL:mediaURL
+                                mediaType:mediaType
                              successBlock:^(NSString *mediaID, NSInteger expiresAfterSecs) {
                                  
                                  __strong typeof(self) strongSelf = weakSelf;
@@ -4641,8 +4648,8 @@ authenticateInsteadOfAuthorize:authenticateInsteadOfAuthorize
                                      return;
                                  }
                                  
-                                 [strongSelf postMediaUploadAPPENDWithVideoURL:videoURL
-                                                                       mediaID:mediaID
+                                 [strongSelf postMediaUploadAPPENDWithMediaURL:mediaURL
+                                                                     mediaID:mediaID
                                                            uploadProgressBlock:uploadProgressBlock
                                                                   successBlock:^(id response) {
                                                                       

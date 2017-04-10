@@ -2069,13 +2069,15 @@ authenticateInsteadOfAuthorize:(BOOL)authenticateInsteadOfAuthorize // use NO if
  The maximum file size is 15MB and is checked during the upload process
  The maximum length is 30 seconds and is checked when Tweeting with a video media_id
  One video (or animated GIF) media_id can be added to a Tweet. Photos are the only media type that can be added up to four times.
+ MediaType should be a value such as "dm_image", "dm_video", "dm_gif" etc
  */
 
-- (NSObject<STTwitterRequestProtocol> *)postMediaUploadINITWithVideoURL:(NSURL *)videoMediaURL
+- (NSObject<STTwitterRequestProtocol> *)postMediaUploadINITWithMediaURL:(NSURL *)mediaURL
+                                                              mediaType:(NSString *)mediaType
                                                            successBlock:(void(^)(NSString *mediaID, NSInteger expiresAfterSecs))successBlock
                                                              errorBlock:(void(^)(NSError *error))errorBlock;
 
-- (void)postMediaUploadAPPENDWithVideoURL:(NSURL *)videoMediaURL
+- (void)postMediaUploadAPPENDWithMediaURL:(NSURL *)mediaURL
                                   mediaID:(NSString *)mediaID
                       uploadProgressBlock:(void(^)(int64_t bytesWritten, int64_t totalBytesWritten, int64_t totalBytesExpectedToWrite))uploadProgressBlock
                              successBlock:(void(^)(id response))successBlock
@@ -2113,7 +2115,8 @@ authenticateInsteadOfAuthorize:(BOOL)authenticateInsteadOfAuthorize // use NO if
 //                                    NSLog(@"-- %@", error);
 //                                }];
 
-- (void)postMediaUploadThreeStepsWithVideoURL:(NSURL *)videoURL // local URL
+- (void)postMediaUploadThreeStepsWithMediaURL:(NSURL *)mediaURL // local URL
+                                    mediaType:(NSString *)mediaType
                           uploadProgressBlock:(void(^)(int64_t bytesWritten, int64_t totalBytesWritten, int64_t totalBytesExpectedToWrite))uploadProgressBlock
                                  successBlock:(void(^)(NSString *mediaID, NSInteger size, NSInteger expiresAfter, NSString *videoType))successBlock
                                    errorBlock:(void(^)(NSError *error))errorBlock;
