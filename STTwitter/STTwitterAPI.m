@@ -4446,7 +4446,7 @@ authenticateInsteadOfAuthorize:authenticateInsteadOfAuthorize
 }
 
 - (NSObject<STTwitterRequestProtocol> *)postMediaUploadINITWithMediaURL:(NSURL *)mediaURL
-                                                              mediaType:(NSString *)mediaType
+                                                              mediaCategory:(NSString *)mediaCategory
                                                            successBlock:(void(^)(NSString *mediaID, NSInteger expiresAfterSecs))successBlock
                                                              errorBlock:(void(^)(NSError *error))errorBlock {
     
@@ -4464,7 +4464,7 @@ authenticateInsteadOfAuthorize:authenticateInsteadOfAuthorize
     
     NSMutableDictionary *md = [NSMutableDictionary dictionary];
     md[@"command"] = @"INIT";
-    md[@"media_type"] = mediaType;
+    md[@"media_category"] = mediaCategory;
     md[@"total_bytes"] = [NSString stringWithFormat:@"%@", @([data length])];
     
     return [self postResource:@"media/upload.json"
@@ -4631,7 +4631,7 @@ authenticateInsteadOfAuthorize:authenticateInsteadOfAuthorize
 // convenience
 
 - (void)postMediaUploadThreeStepsWithMediaURL:(NSURL *)mediaURL // local URL
-                                    mediaType:(NSString *)mediaType
+                                    mediaCategory:(NSString *)mediaCategory
                           uploadProgressBlock:(void(^)(int64_t bytesWritten, int64_t totalBytesWritten, int64_t totalBytesExpectedToWrite))uploadProgressBlock
                                  successBlock:(void(^)(NSString *mediaID, NSInteger size, NSInteger expiresAfter, NSString *mediaType))successBlock
                                    errorBlock:(void(^)(NSError *error))errorBlock {
@@ -4639,7 +4639,7 @@ authenticateInsteadOfAuthorize:authenticateInsteadOfAuthorize
     __weak typeof(self) weakSelf = self;
     
     [self postMediaUploadINITWithMediaURL:mediaURL
-                                mediaType:mediaType
+                                mediaCategory:mediaCategory
                              successBlock:^(NSString *mediaID, NSInteger expiresAfterSecs) {
                                  
                                  __strong typeof(self) strongSelf = weakSelf;

@@ -2073,7 +2073,7 @@ authenticateInsteadOfAuthorize:(BOOL)authenticateInsteadOfAuthorize // use NO if
  */
 
 - (NSObject<STTwitterRequestProtocol> *)postMediaUploadINITWithMediaURL:(NSURL *)mediaURL
-                                                              mediaType:(NSString *)mediaType
+                                                          mediaCategory:(NSString *)mediaCategory
                                                            successBlock:(void(^)(NSString *mediaID, NSInteger expiresAfterSecs))successBlock
                                                              errorBlock:(void(^)(NSError *error))errorBlock;
 
@@ -2116,7 +2116,7 @@ authenticateInsteadOfAuthorize:(BOOL)authenticateInsteadOfAuthorize // use NO if
 //                                }];
 
 - (void)postMediaUploadThreeStepsWithMediaURL:(NSURL *)mediaURL // local URL
-                                    mediaType:(NSString *)mediaType
+                                mediaCategory:(NSString *)mediaCategory
                           uploadProgressBlock:(void(^)(int64_t bytesWritten, int64_t totalBytesWritten, int64_t totalBytesExpectedToWrite))uploadProgressBlock
                                  successBlock:(void(^)(NSString *mediaID, NSInteger size, NSInteger expiresAfter, NSString *videoType))successBlock
                                    errorBlock:(void(^)(NSError *error))errorBlock;
