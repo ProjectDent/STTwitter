@@ -4583,7 +4583,7 @@ authenticateInsteadOfAuthorize:authenticateInsteadOfAuthorize
 }
 
 - (NSObject<STTwitterRequestProtocol> *)postMediaUploadFINALIZEWithMediaID:(NSString *)mediaID
-                                                              successBlock:(void(^)(NSString *mediaID, NSInteger size, NSInteger expiresAfter, NSString *mediaType))successBlock
+                                                              successBlock:(void(^)(NSString *mediaID, NSInteger size, NSInteger expiresAfter, NSString *mediaType, NSTimeInterval checkAfterSecs))successBlock
                                                                 errorBlock:(void(^)(NSError *error))errorBlock {
     
     // https://dev.twitter.com/rest/public/uploading-media
@@ -4606,6 +4606,8 @@ authenticateInsteadOfAuthorize:authenticateInsteadOfAuthorize
                      NSInteger size = [[response valueForKey:@"size"] integerValue];
                      NSString *mediaType = [response valueForKeyPath:@"video.video_type"];
                      
+                     NSInteger checkAfterSecs = [[response valueForKeyPath:@"processing_info.check_after_secs"] integerValue];
+                     
                      if (mediaType == nil) {
                          mediaType = [response valueForKeyPath:@"image.image_type"];
                      }
@@ -4622,7 +4624,7 @@ authenticateInsteadOfAuthorize:authenticateInsteadOfAuthorize
                       }
                       */
                      
-                     successBlock(mediaID, size, expiresAfterSecs, mediaType);
+                     successBlock(mediaID, size, expiresAfterSecs, mediaType, checkAfterSecs);
                  } errorBlock:^(NSError *error) {
                      errorBlock(error);
                  }];
@@ -4694,40 +4696,70 @@ authenticateInsteadOfAuthorize:authenticateInsteadOfAuthorize
 
 // convenience
 
-- (void)postMediaUploadThreeStepsWithMediaURL:(NSURL *)mediaURL // local URL
-                                    mediaCategory:(NSString *)mediaCategory
+- (void)postMediaUploadFourStepsWithMediaURL:(NSURL *)mediaURL // local URL
+                                mediaCategory:(NSString *)mediaCategory
                           uploadProgressBlock:(void(^)(int64_t bytesWritten, int64_t totalBytesWritten, int64_t totalBytesExpectedToWrite))uploadProgressBlock
                                  successBlock:(void(^)(NSString *mediaID, NSInteger size, NSInteger expiresAfter, NSString *mediaType))successBlock
                                    errorBlock:(void(^)(NSError *error))errorBlock {
     
     __weak typeof(self) weakSelf = self;
     
-    [self postMediaUploadINITWithMediaURL:mediaURL
-                                mediaCategory:mediaCategory
-                             successBlock:^(NSString *mediaID, NSInteger expiresAfterSecs) {
-                                 
-                                 __strong typeof(self) strongSelf = weakSelf;
-                                 if(strongSelf == nil) {
-                                     errorBlock(nil);
-                                     return;
-                                 }
-                                 
-                                 [strongSelf postMediaUploadAPPENDWithMediaURL:mediaURL
-                                                                     mediaID:mediaID
-                                                           uploadProgressBlock:uploadProgressBlock
-                                                                  successBlock:^(id response) {
-                                                                      
-                                                                      __strong typeof(self) strongSelf2 = weakSelf;
-                                                                      if(strongSelf2 == nil) {
-                                                                          errorBlock(nil);
-                                                                          return;
-                                                                      }
-                                                                      
-                                                                      [strongSelf2 postMediaUploadFINALIZEWithMediaID:mediaID
-                                                                                                         successBlock:successBlock
-                                                                                                           errorBlock:errorBlock];
-                                                                  } errorBlock:errorBlock];
-                             } errorBlock:errorBlock];
+    [self
+     postMediaUploadINITWithMediaURL:mediaURL
+     mediaCategory:mediaCategory
+     successBlock:^(NSString *mediaID, NSInteger expiresAfterSecs) {
+         
+         __strong typeof(self) strongSelf = weakSelf;
+         if(strongSelf == nil) {
+             errorBlock(nil);
+             return;
+         }
+         
+         [strongSelf
+          postMediaUploadAPPENDWithMediaURL:mediaURL
+          mediaID:mediaID
+          uploadProgressBlock:uploadProgressBlock
+          successBlock:^(id response) {
+              
+              __strong typeof(self) strongSelf2 = weakSelf;
+              if(strongSelf2 == nil) {
+                  errorBlock(nil);
+                  return;
+              }
+              
+              [strongSelf2
+               postMediaUploadFINALIZEWithMediaID:mediaID
+               successBlock:^(NSString *mediaID, NSInteger size, NSInteger expiresAfter, NSString *mediaType, NSTimeInterval checkAfterSecs) {
+                   
+                   __strong typeof(self) strongSelf3 = weakSelf;
+                   if(strongSelf3 == nil) {
+                       errorBlock(nil);
+                       return;
+                   }
+                   
+                   if (checkAfterSecs == 0) {
+                       successBlock(mediaID, size, expiresAfter, mediaType);
+                   } else {
+                       [strongSelf3
+                        postMediaUploadSTATUSWithMediaID:mediaID
+                        afterInterval: checkAfterSecs
+                        inProgressBlock:^(NSTimeInterval checkAfterSecs) {
+                            
+                        }
+                        completionBlock:^(BOOL failed) {
+                            if (failed) {
+                                errorBlock(nil);
+                            } else {
+                                successBlock(mediaID, size, expiresAfter, mediaType);
+                            }
+                        }
+                        errorBlock:errorBlock];
+                   }
+                   
+               }
+               errorBlock:errorBlock];
+          } errorBlock:errorBlock];
+     } errorBlock:errorBlock];
 }
 
 #pragma mark -
