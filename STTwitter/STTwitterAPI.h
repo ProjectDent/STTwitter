@@ -2087,6 +2087,12 @@ authenticateInsteadOfAuthorize:(BOOL)authenticateInsteadOfAuthorize // use NO if
                                                               successBlock:(void(^)(NSString *mediaID, NSInteger size, NSInteger expiresAfter, NSString *videoType))successBlock
                                                                 errorBlock:(void(^)(NSError *error))errorBlock;
 
+- (void)postMediaUploadSTATUSWithMediaID:(NSString *)mediaID
+                           afterInterval:(NSTimeInterval)timeInterval
+                         inProgressBlock:(void(^)(NSTimeInterval checkAfterSecs))inProgressBlock
+                         completionBlock:(void(^)(BOOL failed))completionBlock
+                              errorBlock:(void(^)(NSError *error))errorBlock;
+
 // convenience
 
 //    NSURL *videoURL = [NSURL fileURLWithPath:@"/Users/nst/Desktop/x.mov"];

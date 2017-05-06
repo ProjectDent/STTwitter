@@ -4628,6 +4628,70 @@ authenticateInsteadOfAuthorize:authenticateInsteadOfAuthorize
                  }];
 }
 
+- (void)postMediaUploadSTATUSWithMediaID:(NSString *)mediaID
+                                                           afterInterval:(NSTimeInterval)timeInterval
+                                                         inProgressBlock:(void(^)(NSTimeInterval checkAfterSecs))inProgressBlock
+                                                              completionBlock:(void(^)(BOOL failed))completionBlock
+                                                                errorBlock:(void(^)(NSError *error))errorBlock {
+    
+    // https://dev.twitter.com/rest/public/uploading-media
+    
+    
+    
+    __weak typeof(self) weakSelf = self;
+    
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, timeInterval * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+        
+        __strong typeof(self) strongSelf = weakSelf;
+        if(strongSelf == nil) {
+            errorBlock(nil);
+            return;
+        }
+        
+        NSMutableDictionary *md = [NSMutableDictionary dictionary];
+        md[@"command"] = @"STATUS";
+        md[@"media_id"] = mediaID;
+        
+        [strongSelf getResource:@"media/upload.json"
+                  baseURLString:kBaseURLStringUpload_1_1
+                     parameters:md
+          downloadProgressBlock:nil
+                   successBlock:^(NSDictionary *rateLimits, id response) {
+                       
+                       NSLog(@"status response -- %@", response);
+                       
+                       NSString *state = [response valueForKeyPath:@"processing_info.state"];
+                       
+                       if ([state isEqualToString:@"in_progress"]) {
+                           NSInteger checkAfterSecs = [[response valueForKeyPath:@"processing_info.check_after_secs"] integerValue];
+                           
+                           inProgressBlock(checkAfterSecs);
+                           
+                           __strong typeof(self) strongSelf2 = weakSelf;
+                           if(strongSelf2 == nil) {
+                               errorBlock(nil);
+                               return;
+                           }
+                           
+                           [strongSelf2
+                            postMediaUploadSTATUSWithMediaID:mediaID
+                            afterInterval: checkAfterSecs
+                            inProgressBlock:inProgressBlock
+                            completionBlock:completionBlock
+                            errorBlock:errorBlock];
+                       } else if ([state isEqualToString:@"failed"]) {
+                           completionBlock(YES);
+                       } else if ([state isEqualToString:@"succeeded"]) {
+                           completionBlock(NO);
+                       }
+                   } errorBlock:^(NSError *error) {
+                       
+                       NSLog(@"status error -- %@", error);
+                       errorBlock(error);
+                   }];
+    });
+}
+
 // convenience
 
 - (void)postMediaUploadThreeStepsWithMediaURL:(NSURL *)mediaURL // local URL
